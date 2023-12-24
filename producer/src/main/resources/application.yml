@@ -1,0 +1,7 @@
+port:
+  8080:8080
+
+
+topic:
+  name1: t.film.review
+  name2: t.film.film

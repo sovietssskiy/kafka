@@ -1,0 +1,86 @@
+version: "3.7"
+
+services:
+  producer:
+    image: producer
+    build:
+      context: ./producer
+    depends_on:
+      - kafka
+      - consumer
+    networks:
+      - kafka-net
+  consumer:
+    image: consumer
+    build:
+      context: ./consumer
+    depends_on:
+      - kafka
+      - db_pg_kafka
+    env_file:
+      - ./consumer/.env
+    ports:
+      - "8081:8081"
+    networks:
+      - kafka-net
+  db_pg_kafka:
+    image: postgres:14-alpine
+    container_name: db_pg_kafka
+    env_file:
+      - ./consumer/.env
+    networks:
+      - kafka-net
+  nginx:
+    image: nginx:latest
+    depends_on:
+      - producer
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - kafka-net
+  zookeeper:
+    image: zookeeper:3.7.0
+    container_name: zookeeper
+    restart: "no"
+    networks:
+      - kafka-net
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: obsidiandynamics/kafka
+    container_name: kafka
+    restart: "no"
+    networks:
+      - kafka-net
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: DOCKER_INTERNAL:PLAINTEXT,DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_LISTENERS: DOCKER_INTERNAL://:29092,DOCKER_EXTERNAL://:9092
+      KAFKA_ADVERTISED_LISTENERS: DOCKER_INTERNAL://kafka:29092,DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_BROKER_ID: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    container_name: kafdrop
+    restart: "no"
+    networks:
+      - kafka-net
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: "kafka:29092"
+    depends_on:
+      - "kafka"
+networks:
+  kafka-net:
+    name: kafka-net
+    driver: bridge
