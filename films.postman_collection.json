@@ -1,0 +1,47 @@
+{
+	"info": {
+		"_postman_id": "32d47f55-5512-4666-8097-3395f5d64c00",
+		"name": "films",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30095722"
+	},
+	"item": [
+		{
+			"name": "films",
+			"item": [
+				{
+					"name": "getFilm",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "getReview",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "createFilm",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "createReview",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
